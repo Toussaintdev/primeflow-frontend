@@ -1,135 +1,116 @@
-import { SectionCards } from "@/components/custom/section-cards";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Download, ExternalLink, FileSpreadsheet } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  TableCaption,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  Table,
-} from "@/components/ui/table";
-import { Eye, Edit, Delete, Trash2 } from "lucide-react";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { getRapports, urlFichierRapport } from "@/lib/api";
+import { formatDateHeure } from "@/lib/format";
 
-export default function page() {
+export default function RapportsPage() {
+  const [rapports, setRapports] = useState<RapportType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selection, setSelection] = useState<RapportType | null>(null);
+
+  useEffect(() => {
+    getRapports()
+      .then(setRapports)
+      .catch((e: Error) => toast.error(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const url = selection ? urlFichierRapport(selection) : null;
+
   return (
-    <div>
-      <div className="flex">
-        <div className="flex-1">
-          <p className="text-(length:--text-2xl) font-bold">Validations</p>
-          {/* <p className="text-muted-foreground text-(length:--text-base)">
-            Vue d'ensemble du système
-          </p> */}
-        </div>
-        <Card className=""></Card>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Rapports & statistiques</h1>
+        <p className="text-muted-foreground">
+          Les rapports Excel générés après chaque calcul de primes. Cliquez sur
+          une vignette pour l'ouvrir ou la télécharger.
+        </p>
       </div>
-      <div className="space-y-(--space-md) mt-(--space-lg)">
-        {/* <div className="grid grid-cols-4 gap-(--space-md)"> */}
-        <SectionCards />
-        {/* </div> */}
 
-        <div className="grid grid-cols-3 gap-(--space-md)">
-          <div></div>
-          <div></div>
-          <div></div>
+      {loading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 w-full" />
+          ))}
         </div>
-        <div className="gap-(--space-md)">
-          <Card className="p-0">
-            <Table>
-              <TableCaption>A list of your recent invoices.</TableCaption>
-              <TableHeader className="bg-primary/10">
-                <TableRow>
-                  <TableHead className="w-25 text-accent font-bold">
-                    ID
-                  </TableHead>
-                  <TableHead className="text-accent font-bold">
-                    Username
-                  </TableHead>
-                  <TableHead className="text-accent font-bold">Email</TableHead>
-                  <TableHead className="text-accent font-bold">Role</TableHead>
-                  <TableHead className="text-accent font-bold">
-                    Etat du compte
-                  </TableHead>
-                  <TableHead className="text-right text-accent font-bold">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="flex items-end justify-end space-x-2">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-
-                    <Button variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="text-right">X</TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="text-right">X</TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="text-right">X</TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="text-right">X</TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="text-right">X</TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-table-row-hover">
-                  <TableCell className="font-medium">INV001</TableCell>
-                  <TableCell>User 1</TableCell>
-                  <TableCell>user@ex.com</TableCell>
-                  <TableCell>Direction des opérations</TableCell>
-                  <TableCell>Actif</TableCell>
-                  <TableCell className="text-right">X</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Card>
+      ) : rapports.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Aucun rapport généré pour l'instant. Les rapports apparaissent ici
+          après avoir cliqué sur « Générer le rapport Excel » depuis Calcul de
+          primes.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {rapports.map((rapport) => (
+            <button
+              key={rapport.idRapport}
+              onClick={() => setSelection(rapport)}
+              className="text-left"
+            >
+              <Card className="h-40 flex flex-col items-center justify-center gap-2 p-4 transition-shadow hover:shadow-md cursor-pointer">
+                <FileSpreadsheet className="h-10 w-10 text-success" />
+                <p className="text-sm font-medium text-center truncate w-full">
+                  {rapport.nomFichier ?? `Rapport ${rapport.type}`}
+                </p>
+                <p className="text-xs text-muted-foreground text-center truncate w-full">
+                  {rapport.periodeLabel ??
+                    formatDateHeure(rapport.dateCreation)}
+                </p>
+              </Card>
+            </button>
+          ))}
         </div>
-      </div>
+      )}
+
+      <Dialog
+        open={!!selection}
+        onOpenChange={(open) => !open && setSelection(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selection?.nomFichier ?? "Rapport"}</DialogTitle>
+            <DialogDescription>
+              {selection?.periodeLabel && (
+                <>Période : {selection.periodeLabel}. </>
+              )}
+              Généré le{" "}
+              {selection ? formatDateHeure(selection.dateCreation) : ""}
+              {selection?.genereePar_nom
+                ? ` par ${selection.genereePar_nom}`
+                : ""}
+              .
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button variant="outline" asChild disabled={!url}>
+              <a href={url ?? "#"} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Ouvrir
+              </a>
+            </Button>
+            <Button asChild disabled={!url}>
+              <a href={url ?? "#"} download>
+                <Download className="mr-2 h-4 w-4" />
+                Télécharger
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

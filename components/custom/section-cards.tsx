@@ -1,6 +1,7 @@
-import { TrendingDown, TrendingUp, User2, Users2 } from "lucide-react";
+import { CalendarClock, Coins, Users2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardAction,
@@ -9,16 +10,40 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  formatDate,
+  formatMontant,
+  STATUT_PERIODE_LABELS,
+  STATUT_PERIODE_STYLES,
+} from "@/lib/format";
 
-export function SectionCards() {
+type Props = {
+  loading: boolean;
+  totalEmployes: number;
+  periodeEnCours: PeriodeCalculType | null;
+  montantDernierePeriode: number;
+  labelDernierePeriode: string | null;
+};
+
+export function SectionCards({
+  loading,
+  totalEmployes,
+  periodeEnCours,
+  montantDernierePeriode,
+  labelDernierePeriode,
+}: Props) {
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total employés</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            250
-          </CardTitle>
+          {loading ? (
+            <Skeleton className="h-8 w-20 mt-1" />
+          ) : (
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              {totalEmployes}
+            </CardTitle>
+          )}
           <CardAction>
             <Badge variant="outline">
               <Users2 />
@@ -26,60 +51,62 @@ export function SectionCards() {
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm bg-sidebar border-t-0">
-          <div className="text-muted-foreground">+12 ce mois</div>
+          <div className="text-muted-foreground">Employés enregistrés</div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            250.00
-          </CardTitle>
+          <CardDescription>Période en cours</CardDescription>
+          {loading ? (
+            <Skeleton className="h-8 w-40 mt-1" />
+          ) : periodeEnCours ? (
+            <CardTitle className="text-lg font-medium tabular-nums @[100px]/card:text-xl">
+              {formatDate(periodeEnCours.dateDebut)} –{" "}
+              {formatDate(periodeEnCours.dateFin)}
+            </CardTitle>
+          ) : (
+            <CardTitle className="text-base font-medium text-muted-foreground">
+              Aucune période ouverte
+            </CardTitle>
+          )}
           <CardAction>
             <Badge variant="outline">
-              <User2 />
+              <CalendarClock />
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <CardFooter className="flex-col items-start gap-1.5 text-sm bg-sidebar border-t-0">
+          {periodeEnCours && (
+            <Badge
+              className={STATUT_PERIODE_STYLES[periodeEnCours.statut]}
+              variant="secondary"
+            >
+              {STATUT_PERIODE_LABELS[periodeEnCours.statut]}
+            </Badge>
+          )}
+        </CardFooter>
+      </Card>
+
+      <Card className="@container/card">
+        <CardHeader>
+          <CardDescription>Primes de la dernière période</CardDescription>
+          {loading ? (
+            <Skeleton className="h-8 w-32 mt-1" />
+          ) : (
+            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              {formatMontant(montantDernierePeriode)}
+            </CardTitle>
+          )}
+          <CardAction>
+            <Badge variant="outline">
+              <Coins />
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm bg-sidebar border-t-0">
           <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            250.00
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <User2 />
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm bg-sidebar border-t-0">
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            250.00
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <User2 />
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm bg-sidebar border-t-0">
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
+            {labelDernierePeriode ?? "Aucun calcul effectué"}
           </div>
         </CardFooter>
       </Card>

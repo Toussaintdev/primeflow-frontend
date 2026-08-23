@@ -2,17 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { login } from "@/lib/api";
-import { resolve } from "path";
 import { Spinner } from "./ui/spinner";
 import { toast } from "sonner";
 
@@ -39,7 +32,7 @@ export function LoginForm({
       }
       window.location.href = "/dashboard/";
     } catch (error: any) {
-      const message = error?.detail || "Identifiant ou met de passe incorrect.";
+      const message = "Identifiant ou mot de passe incorrect.";
       setError(message);
 
       toast.error(message, {
@@ -73,7 +66,7 @@ export function LoginForm({
           )}
         </div>
         <Field>
-          <FieldLabel htmlFor="idUtilisateur">Entez votre ID</FieldLabel>
+          <FieldLabel htmlFor="idUtilisateur">Entrez votre ID</FieldLabel>
           <Input
             id="idUtilisateur"
             type="text"
@@ -106,7 +99,7 @@ export function LoginForm({
                 <Spinner data-icon="inline-start" /> Connexion...
               </>
             ) : (
-              "Connectez-vous"
+              "Se connecter"
             )}
           </Button>
         </Field>

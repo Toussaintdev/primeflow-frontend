@@ -48,7 +48,8 @@ export default function page() {
       });
       router.push("/dashboard");
     } catch (error: any) {
-      let message = "Impossible de réinitialiser le mot de passe";
+      let message =
+        "Impossible de réinitialiser le mot de passe, verifiez ce que vous avez entré";
       setError(message);
       toast.error(message, {
         position: "top-center",

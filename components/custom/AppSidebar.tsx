@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { LogOutIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -11,28 +14,46 @@ import {
   SidebarMenuButton,
 } from "../ui/sidebar";
 import { NAV_LINKS } from "@/constants/nav";
-import Link from "next/link";
-import { LogOut, LogOutIcon } from "lucide-react";
+import { canAccessRoute } from "@/constants/access";
 import { logout } from "@/lib/api";
 
-export default function AppSidebar() {
-  const [clickItem, setClickItem] = useState("Tableau de bord");
+export default function AppSidebar({ roleLabel = "" }: { roleLabel?: string }) {
+  const pathname = usePathname();
+
+  const links = NAV_LINKS.filter((item) =>
+    canAccessRoute(item.href.replace(/\/$/, ""), roleLabel),
+  );
+
   return (
-    <Sidebar collapsible="icon" className="border-r-transparent">
-      <SidebarHeader className="bg-header text-header-foreground h-20"></SidebarHeader>
+    <Sidebar
+      collapsible="icon"
+      className="border-r bg-sidebar text-sidebar-foreground"
+    >
+      <SidebarHeader className="bg-header h-20 border-b px-4 flex items-center">
+        <div className="font-bold text-primary text-lg">LCT</div>
+      </SidebarHeader>
+
       <SidebarContent className="pt-4">
         <SidebarGroupContent>
-          <SidebarMenu className="p-4 gap-2">
-            {NAV_LINKS.map((item) => {
+          <SidebarMenu className="p-3 gap-1.5">
+            {links.map((item) => {
               const Icon = item.icon;
+              const route = item.href.replace(/\/$/, "");
+              const active =
+                pathname === route || pathname.startsWith(`${route}/`);
+
               return (
                 <SidebarMenuButton
                   asChild
                   key={item.label}
-                  className={`px-4 py-6 gap-4 font-bold transition-all duration-(--transition-normal) hover:scale-110 ${clickItem == item.label ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : ""}`}
-                  onClick={() => setClickItem(item.label)}
+                  tooltip={item.label}
+                  className={`px-4 py-6 gap-4 font-medium transition-colors ${
+                    active
+                      ? "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                      : "hover:bg-primary/10 hover:text-primary"
+                  }`}
                 >
-                  <Link href={item.href} className="">
+                  <Link href={item.href}>
                     <Icon />
                     <span>{item.label}</span>
                   </Link>
@@ -42,16 +63,14 @@ export default function AppSidebar() {
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarContent>
-      <SidebarFooter className="p-4">
+
+      <SidebarFooter className="p-3">
         <SidebarMenuButton
-          asChild
-          className="px-4 py-6 font-bold text-destructive hover:text-destructive gap-4"
+          className="px-4 py-6 font-semibold text-destructive hover:text-destructive hover:bg-destructive/10 gap-4"
           onClick={logout}
         >
-          <Link href="">
-            <LogOutIcon />
-            <span>Déconnexion</span>
-          </Link>
+          <LogOutIcon />
+          <span>Déconnexion</span>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>

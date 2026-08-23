@@ -1,7 +1,7 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
-import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -17,89 +17,103 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatMontant } from "@/lib/format";
 
-export const description = "A line chart with a label";
-
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
+export type PointEvolution = {
+  label: string;
+  total: number;
+};
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  total: {
+    label: "Total des primes",
     color: "var(--chart-1)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
-export function ChartLineLabel() {
+export function EvolutionPrimesChart({
+  data,
+  loading,
+}: {
+  data: PointEvolution[];
+  loading: boolean;
+}) {
+  const tendance =
+    data.length >= 2
+      ? data[data.length - 1].total - data[data.length - 2].total
+      : 0;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Line Chart - Label</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Évolution des primes</CardTitle>
+        <CardDescription>
+          Montant total versé, par période de calcul
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <Line
-              dataKey="desktop"
-              type="natural"
-              stroke="var(--color-desktop)"
-              strokeWidth={2}
-              dot={{
-                fill: "var(--color-desktop)",
-              }}
-              activeDot={{
-                r: 6,
-              }}
+        {loading ? (
+          <Skeleton className="h-62.5 w-full" />
+        ) : data.length === 0 ? (
+          <div className="h-62.5 flex items-center justify-center text-muted-foreground text-sm">
+            Aucun calcul de prime n'a encore été effectué.
+          </div>
+        ) : (
+          <ChartContainer config={chartConfig} className="max-h-62.5 w-full">
+            <LineChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 20, left: 12, right: 12 }}
             >
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
               />
-            </Line>
-          </LineChart>
-        </ChartContainer>
+              <YAxis hide />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    indicator="line"
+                    formatter={(value) => formatMontant(value as number)}
+                  />
+                }
+              />
+              <Line
+                dataKey="total"
+                type="natural"
+                stroke="var(--color-total)"
+                strokeWidth={2}
+                dot={{ fill: "var(--color-total)" }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
+      {data.length >= 2 && (
+        <CardFooter className="flex-col items-start gap-2 text-sm">
+          <div className="flex gap-2 leading-none font-medium">
+            {tendance >= 0 ? (
+              <>
+                En hausse de {formatMontant(Math.abs(tendance))} par rapport à
+                la période précédente{" "}
+                <TrendingUp className="h-4 w-4 text-success" />
+              </>
+            ) : (
+              <>
+                En baisse de {formatMontant(Math.abs(tendance))} par rapport à
+                la période précédente{" "}
+                <TrendingDown className="h-4 w-4 text-destructive" />
+              </>
+            )}
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 }
